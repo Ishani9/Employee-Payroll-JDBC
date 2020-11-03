@@ -11,12 +11,14 @@ public class EmployeePayrollService {
 	};
 
 	public List<EmployeePayrollData> employeePayrollList;
+	public EmployeePayrollDBService employeePayrollDBService;
 
 	public EmployeePayrollService(List<EmployeePayrollData> employeePayrollList) {
 		this.employeePayrollList = employeePayrollList;
 	}
 
 	public EmployeePayrollService() {
+		employeePayrollDBService = EmployeePayrollDBService.getInstance();
 	}
 
 	static Scanner scanner = new Scanner(System.in);
@@ -33,10 +35,10 @@ public class EmployeePayrollService {
 				System.out.println("Want to enter new employee payroll data?");
 				choice = scanner.nextLine();
 			}
-		} while (choice.equalsIgnoreCase("yes"));
+		} 
+		while (choice.equalsIgnoreCase("yes"));
 		employeePayrollService.writeEmployeeData(IOService.FILE_IO);
 		employeePayrollService.readEmployeeData(IOService.FILE_IO);
-
 	}
 
 	/**
@@ -56,10 +58,12 @@ public class EmployeePayrollService {
 			System.out.println("Enter Employee Salary : ");
 			double salary = scanner.nextDouble();
 			employeePayrollList.add(new EmployeePayrollData(id, name, salary));
-		} else if (ioService.equals(IOService.FILE_IO)) {
+		} 
+		else if (ioService.equals(IOService.FILE_IO)) {
 			System.out.println("reading data from file");
 			new EmployeePayrollFile().printData();
-		} else if (ioService.equals(IOService.DB_IO)) {
+		}
+		else if (ioService.equals(IOService.DB_IO)) {
 			this.employeePayrollList = new EmployeePayrollDBService().readData();
 		}
 
@@ -80,6 +84,45 @@ public class EmployeePayrollService {
 		}
 	}
 
+	/**
+	 * UC 3
+	 * 
+	 * @param name
+	 * @param salary
+	 */
+	public void updateEmployeePayrollSalary(String name, double salary) {
+		int result = employeePayrollDBService.updateEmployeeData(name, salary);
+
+		if (result == 0) {
+			return;
+		}
+
+		EmployeePayrollData employeePayrollData = this.getEmployeePayrollData(name);
+		
+		if (employeePayrollData != null) {
+			employeePayrollData.salary = salary;
+		}
+	}
+
+	/**
+	 * UC 3
+	 * 
+	 * @param name
+	 * @param salary
+	 */
+	public boolean checkEmployeePayrollInSyncWithDB(String name) {
+		List<EmployeePayrollData> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
+		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
+	}
+
+	private EmployeePayrollData getEmployeePayrollData(String name) {
+		EmployeePayrollData employeePayrollData = this.employeePayrollList.stream()
+				.filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name))
+				.findFirst().orElse(null);
+		return employeePayrollData;
+	}
+
+	
 	/**
 	 * Prints data from file to console
 	 * 

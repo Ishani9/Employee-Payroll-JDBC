@@ -24,7 +24,8 @@ public class EmployeePayrollFile {
 
 		try {
 			Files.write(Paths.get(PAYROLL_FILE_NAME), employeeBuffer.toString().getBytes());
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -35,7 +36,8 @@ public class EmployeePayrollFile {
 	public void printData() {
 		try {
 			Files.lines(new File(PAYROLL_FILE_NAME).toPath()).forEach(System.out::println);
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,7 +51,8 @@ public class EmployeePayrollFile {
 		long totalEntries = 0;
 		try {
 			totalEntries = Files.lines(new File(PAYROLL_FILE_NAME).toPath()).count();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return totalEntries;
@@ -71,7 +74,8 @@ public class EmployeePayrollFile {
 						Double.parseDouble(newData[2])));
 
 			});
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return list;
