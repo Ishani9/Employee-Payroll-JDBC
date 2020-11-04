@@ -227,7 +227,7 @@ public class EmployeePayrollDBService {
 		}
 		return genderComputedMap;
 	}
-  
+	
 	/**
 	 * UC 7
 	 * 
@@ -240,27 +240,88 @@ public class EmployeePayrollDBService {
 	 * @return
 	 * @throws payrollServiceDBException
 	 */
+	@SuppressWarnings("static-access")
 	public EmployeePayrollData addEmployeeToPayroll(String name, String gender, double salary, LocalDate date)
-			throws PayrollServiceDBException {
+			throws PayrollServiceDBException, SQLException {
 		int employeeId = -1;
+		Connection connection = null;
 		EmployeePayrollData employee = null;
-		String sql = String.format(
-				"insert into employee_payroll (name, gender, salary, start) values ('%s', '%s', '%s', '%s')", name,
-				gender, salary, Date.valueOf(date));
-		try (Connection connection = this.getConnection()) {
-			Statement statement = (Statement) connection.createStatement();
-			int rowAffected = statement.executeUpdate(sql, RETURN_GENERATED_KEYS);
+		connection = this.getConnection();
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException exception) {
+			throw new PayrollServiceDBException(exception.getMessage());
+		}
+		try (Statement statement = (Statement) connection.createStatement()) {
+			String sql = String.format(
+					"insert into employee_payroll (name, gender, salary, start) values ('%s', '%s', '%s', '%s')", name,
+					gender, salary, Date.valueOf(date));
+			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
 				if (resultSet.next())
 					employeeId = resultSet.getInt(1);
 			}
 			employee = new EmployeePayrollData(employeeId, name, gender, salary, date);
-		} 
-		catch (SQLException exception) {
+		} catch (SQLException exception) {
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				throw new PayrollServiceDBException(e.getMessage());
+			}
 			throw new PayrollServiceDBException("Unable to add to database");
 		}
+		try (Statement statement = (Statement) connection.createStatement()) {
+			double deductions = salary * 0.2;
+			double taxable_pay = salary - deductions;
+			double tax = taxable_pay * 0.1;
+			double netPay = salary - tax;
+			String sql = String.format(
+					"insert into payroll_details (employeeId, basic_pay, deductions, taxable_pay, tax, net_pay) "
+							+ "VALUES ('%s','%s','%s','%s','%s','%s')",
+					employeeId, salary, deductions, taxable_pay, tax, netPay);
+			int rowAffected = statement.executeUpdate(sql);
+			if (rowAffected == 1) {
+				employee = new EmployeePayrollData(employeeId, name, gender, salary, date);
+			}
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException exception) {
+				throw new PayrollServiceDBException(exception.getMessage());
+			}
+			throw new PayrollServiceDBException("Unable to add to database");
+		}
+		try {
+			connection.commit();
+		} 
+		catch (SQLException e) {
+			throw new PayrollServiceDBException(e.getMessage());
+		} 
+		finally {
+			if (connection != null) {
+				connection.close();
+			}
+		}
 		return employee;
+	}
+	
+	/**
+	 * UC 8
+	 * 
+	 * deletes employee record in cascade from both tables of database
+	 * 
+	 * @param id
+	 * @throws payrollServiceDBException
+	 */
+	public void deleteEmployeeFromPayroll(int id) throws PayrollServiceDBException {
+		String sql = String.format("delete from employee_payroll where id = %s;", id);
+		try (Connection connection = this.getConnection()) {
+			Statement statement = (Statement) connection.createStatement();
+			statement.executeUpdate(sql);
+		} catch (SQLException exception) {
+			throw new PayrollServiceDBException("Unable to delete data");
+		}
 	}
 
 }

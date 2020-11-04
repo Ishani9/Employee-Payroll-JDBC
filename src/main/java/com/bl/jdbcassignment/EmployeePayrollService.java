@@ -1,5 +1,6 @@
 package com.bl.jdbcassignment;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -188,10 +189,26 @@ public class EmployeePayrollService {
 	 * @param gender
 	 * @param salary
 	 * @param date
+	 * @throws SQLException 
 	 */
-	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate date) {
+	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate date) throws SQLException {
 		try {
 			employeePayrollDBService.addEmployeeToPayroll(name, gender, salary, date);
+		} catch (PayrollServiceDBException exception) {
+			System.out.println(exception.getMessage());
+		}
+	}
+	
+	/**
+	 * UC 8
+	 * 
+	 * deletes employee record from database
+	 * 
+	 * @param id
+	 */
+	public void deleteEmployeeFromPayroll(int id) {
+		try {
+			employeePayrollDBService.deleteEmployeeFromPayroll(id);
 		} catch (PayrollServiceDBException exception) {
 			System.out.println(exception.getMessage());
 		}
