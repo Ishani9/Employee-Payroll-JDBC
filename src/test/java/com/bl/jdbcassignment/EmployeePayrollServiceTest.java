@@ -88,16 +88,28 @@ public class EmployeePayrollServiceTest {
 		assertTrue(genderComputedMap.get("M").equals(2.0));
 		assertTrue(genderComputedMap.get("F").equals(2.0));
 	}
-
+	
 	/**
 	 * UC 7
 	 * 
 	 */
 	@Test
-	public void givenNewEmployee_WhenAdded_ShouldSincWithDB() {
+	public void givenNewEmployee_WhenAdded_ShouldSincWithDB() throws SQLException {
 		employeePayrollService.addEmployeeToPayroll("Charlie", "M", 500000.0, LocalDate.now());
 		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Charlie");
 		assertTrue(result);
 	}
+	
+	/**
+	 * UC 8
+	 * 
+	 */
+	@Test
+	public void givenEmployeeId_WhenDeleted_shouldDeleteCascadingly() {
+		employeePayrollService.deleteEmployeeFromPayroll(2);
+		employeePayrollData = employeePayrollService.readEmployeeData(IOService.DB_IO);
+		assertEquals(4, employeePayrollData.size());
+	}
+	
 }
 
