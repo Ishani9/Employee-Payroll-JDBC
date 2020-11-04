@@ -1,6 +1,7 @@
 package com.bl.jdbcassignment;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,15 +122,15 @@ public class EmployeePayrollDBService {
 			throw new PayrollServiceDBException(exception.getMessage());
 		}
 	}
-
+	
 	/**
-	 * reads data from database and returns it in list
+	 *  returns list of employee payroll data
 	 * 
+	 * @param sql
 	 * @return
-	 * @throws payrollServiceDBException
+	 * @throws PayrollServiceDBException
 	 */
-	public List<EmployeePayrollData> readData() throws PayrollServiceDBException {
-		String sql = "select *  from employee_payroll;";
+	private List<EmployeePayrollData> getData(String sql) throws PayrollServiceDBException {
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
 		try (Connection connection = this.getConnection()) {
 			Statement statement = (Statement) connection.createStatement();
@@ -140,6 +141,18 @@ public class EmployeePayrollDBService {
 		}
 
 		return employeePayrollList;
+	}
+
+
+	/**
+	 * reads data from database and returns it in list
+	 * 
+	 * @return
+	 * @throws payrollServiceDBException
+	 */
+	public List<EmployeePayrollData> readData() throws PayrollServiceDBException {
+		String sql = "select *  from employee_payroll;";
+		return this.getData(sql);
 	}
 
 	/**
@@ -166,6 +179,21 @@ public class EmployeePayrollDBService {
 			throw new PayrollServiceDBException(exception.getMessage());
 		}
 		return employeePayrollList;
+	}
+	
+	/**
+	 * UC 5
+	 * 
+	 * when given date range returns list of employees who joined between dates
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws payrollServiceDBException
+	 */
+	public List<EmployeePayrollData> readDataForGivenDateRange(LocalDate start, LocalDate end) throws PayrollServiceDBException {
+		String sql = String.format("Select * from employee_payroll where start between '%s' and '%s' ;",
+				Date.valueOf(start), Date.valueOf(end));
+		return this.getData(sql);
 	}
 
 }

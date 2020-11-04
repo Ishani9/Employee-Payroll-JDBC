@@ -1,5 +1,6 @@
 package com.bl.jdbcassignment;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class EmployeePayrollService {
@@ -83,6 +84,20 @@ public class EmployeePayrollService {
 			System.out.println(exception.getMessage());
 		}
 		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
+	}
+	
+	/**
+	 * UC 5
+	 * 
+	 */
+	public List<EmployeePayrollData> getEmployeeByDate(LocalDate start, LocalDate end) {
+		List<EmployeePayrollData> employeeByDateList = null;
+		try {
+			employeeByDateList = employeePayrollDBService.readDataForGivenDateRange(start, end);
+		} catch (PayrollServiceDBException exception) {
+			System.out.println(exception.getMessage());
+		}
+		return employeeByDateList;
 	}
 
 }
