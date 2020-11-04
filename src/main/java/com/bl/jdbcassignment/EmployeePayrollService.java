@@ -178,5 +178,23 @@ public class EmployeePayrollService {
 		}
 		return genderComputedMap;
 	}
+	
+	/**
+	 * UC 7
+	 * 
+	 * adds employee details to database
+	 * 
+	 * @param name
+	 * @param gender
+	 * @param salary
+	 * @param date
+	 */
+	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate date) {
+		try {
+			employeePayrollDBService.addEmployeeToPayroll(name, gender, salary, date);
+		} catch (PayrollServiceDBException exception) {
+			System.out.println(exception.getMessage());
+		}
+	}
 
 }
