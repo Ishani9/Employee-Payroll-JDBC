@@ -1,3 +1,4 @@
+
 package com.bl.jdbcassignment;
 
 import java.sql.SQLException;
@@ -20,6 +21,18 @@ public class EmployeePayrollService {
 	 */
 	public EmployeePayrollService() {
 		employeePayrollDBService = EmployeePayrollDBService.getInstance();
+	}
+
+	/**
+	 * returns employeePayrollData object given name of employee
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private EmployeePayrollData getEmployeePayrollData(String name) {
+		EmployeePayrollData employeePayrollData = this.employeePayrollList.stream()
+				.filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name)).findFirst().orElse(null);
+		return employeePayrollData;
 	}
 
 	/**
@@ -213,5 +226,4 @@ public class EmployeePayrollService {
 			System.out.println(exception.getMessage());
 		}
 	}
-
 }

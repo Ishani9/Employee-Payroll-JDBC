@@ -1,3 +1,4 @@
+
 package com.bl.jdbcassignment;
 
 import java.time.LocalDate;
@@ -63,4 +64,4 @@ public class EmployeePayrollData {
 						Double.compare(that.salary, salary) == 0 &&
 						name.equals(that.name);
 	}
-}
+  

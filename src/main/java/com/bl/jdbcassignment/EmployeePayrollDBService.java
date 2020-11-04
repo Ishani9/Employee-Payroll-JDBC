@@ -1,3 +1,4 @@
+
 package com.bl.jdbcassignment;
 
 import java.sql.Connection;
@@ -183,6 +184,12 @@ public class EmployeePayrollDBService {
 			employeePayrollList = this.getEmployeePayrollData(resultSet);
 		} catch (SQLException | PayrollServiceDBException exception) {
 			throw new PayrollServiceDBException(exception.getMessage());
+			}
+			employeePayrollDataPrepareStatement.setString(1, name);
+			ResultSet resultSet = employeePayrollDataPrepareStatement.executeQuery();
+			employeePayrollList = this.getEmployeePayrollData(resultSet);
+		} catch (SQLException | PayrollServiceDBException exception) {
+			throw new PayrollServiceDBException(exception.getMessage());
 		}
 		return employeePayrollList;
 	}
@@ -229,7 +236,7 @@ public class EmployeePayrollDBService {
 	}
 	
 	/**
-	 * UC 9
+	 * UC 7
 	 * 
 	 * adds employee details to database
 	 * 
@@ -252,7 +259,7 @@ public class EmployeePayrollDBService {
 		} catch (SQLException exception) {
 			throw new PayrollServiceDBException(exception.getMessage());
 		}
-		try (Statement statement = (Statement) connection.createStatement()) { // adding to employee_payroll table
+		try (Statement statement = (Statement) connection.createStatement()) {
 			String sql = String.format(
 					"insert into employee_payroll (name, gender, salary, start) values ('%s', '%s', '%s', '%s')", name,
 					gender, salary, Date.valueOf(date));
@@ -271,7 +278,7 @@ public class EmployeePayrollDBService {
 			}
 			throw new PayrollServiceDBException("Unable to add to database");
 		}
-		try (Statement statement = (Statement) connection.createStatement()) { // adding to payroll_details table
+		try (Statement statement = (Statement) connection.createStatement()) {
 			double deductions = salary * 0.2;
 			double taxable_pay = salary - deductions;
 			double tax = taxable_pay * 0.1;
@@ -280,7 +287,10 @@ public class EmployeePayrollDBService {
 					"insert into payroll_details (employeeId, basic_pay, deductions, taxable_pay, tax, net_pay) "
 							+ "VALUES ('%s','%s','%s','%s','%s','%s')",
 					employeeId, salary, deductions, taxable_pay, tax, netPay);
-			statement.executeUpdate(sql);
+			int rowAffected = statement.executeUpdate(sql);
+			if (rowAffected == 1) {
+				employee = new EmployeePayrollData(employeeId, name, gender, salary, date);
+			}
 		} catch (SQLException e) {
 			try {
 				connection.rollback();
@@ -291,9 +301,11 @@ public class EmployeePayrollDBService {
 		}
 		try {
 			connection.commit();
-		} catch (SQLException e) {
+		} 
+		catch (SQLException e) {
 			throw new PayrollServiceDBException(e.getMessage());
-		} finally {
+		} 
+		finally {
 			if (connection != null) {
 				connection.close();
 			}
@@ -318,5 +330,3 @@ public class EmployeePayrollDBService {
 			throw new PayrollServiceDBException("Unable to delete data");
 		}
 	}
-
-}
