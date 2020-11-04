@@ -88,7 +88,7 @@ public class EmployeePayrollServiceTest {
 		assertTrue(genderComputedMap.get("M").equals(2.0));
 		assertTrue(genderComputedMap.get("F").equals(2.0));
 	}
-	
+
 	/**
 	 * UC 7
 	 * 

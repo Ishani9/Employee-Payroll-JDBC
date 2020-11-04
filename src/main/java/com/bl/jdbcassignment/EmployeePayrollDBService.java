@@ -227,7 +227,7 @@ public class EmployeePayrollDBService {
 		}
 		return genderComputedMap;
 	}
-	
+  
 	/**
 	 * UC 7
 	 * 
@@ -262,6 +262,5 @@ public class EmployeePayrollDBService {
 		}
 		return employee;
 	}
-
 
 }
