@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class EmployeePayrollDBService {
 	private static EmployeePayrollDBService employeePayrollDBService;
@@ -86,6 +87,8 @@ public class EmployeePayrollDBService {
 		}
 	}
 	/**
+	 * UC 3
+	 * 
 	 * updates data using statement
 	 * @param name
 	 * @param salary
@@ -106,6 +109,8 @@ public class EmployeePayrollDBService {
 	}
 	
 	/**
+	 * UC 4
+	 * 
 	 * updates data using prepared statement
 	 * @param name
 	 * @param salary
@@ -221,6 +226,41 @@ public class EmployeePayrollDBService {
 			throw new PayrollServiceDBException("Unable to find " + function);
 		}
 		return genderComputedMap;
+	}
+  
+	/**
+	 * UC 7
+	 * 
+	 * adds employee details to database
+	 * 
+	 * @param name
+	 * @param gender
+	 * @param salary
+	 * @param date
+	 * @return
+	 * @throws payrollServiceDBException
+	 */
+	public EmployeePayrollData addEmployeeToPayroll(String name, String gender, double salary, LocalDate date)
+			throws PayrollServiceDBException {
+		int employeeId = -1;
+		EmployeePayrollData employee = null;
+		String sql = String.format(
+				"insert into employee_payroll (name, gender, salary, start) values ('%s', '%s', '%s', '%s')", name,
+				gender, salary, Date.valueOf(date));
+		try (Connection connection = this.getConnection()) {
+			Statement statement = (Statement) connection.createStatement();
+			int rowAffected = statement.executeUpdate(sql, RETURN_GENERATED_KEYS);
+			if (rowAffected == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if (resultSet.next())
+					employeeId = resultSet.getInt(1);
+			}
+			employee = new EmployeePayrollData(employeeId, name, gender, salary, date);
+		} 
+		catch (SQLException exception) {
+			throw new PayrollServiceDBException("Unable to add to database");
+		}
+		return employee;
 	}
 
 }
